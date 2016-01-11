@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    .container-fluid
+        .jumbotron
+            h1= title
+            p.subtitle= text
+
+        .jumbotron(id='chatWrapper')
+            .panel.panel-default
+                .panel-heading
+                    .h3.panel-title NetCoApp Chat
+
+                .panel-body
+                    div.chatLvl0
+                        input(id='chatUser', type='text', value='', placeholder='Please choose a Username..')
+                        button(id='btnLogin', type='text') Login
+                    ul.chatLvl1(id='chatList')
+
+                .panel-footer
+                    form.chatLvl1(id='chatForm', name='chatForm')
+                        input(id='chatInput', type='text', value='', placeholder='Type your message here..')
+                        button(type='submit') Send

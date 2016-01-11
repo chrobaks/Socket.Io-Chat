@@ -1,0 +1,28 @@
+div.modal.fade(tabindex='-1', role='dialog', id='modalCharts')
+    div.modal-dialog
+        div.modal-content
+            div.modal-header
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') ×
+                h4.modal-title
+            div.modal-body
+
+            div.modal-footer
+                button.btn.btn-default(type='button', data-dismiss='modal') Schliessen
+                button.btn.btn-primary(type='button', id='btnShowModalChartPreview') Vorschau
+                button.btn.btn-primary(type='button', id='btnBackToChartPreview') zurück
+                button.btn.btn-primary(type='button', id='btnSavePreview') Speichern
+
+div.modal.fade(tabindex='-1', role='dialog', id='dialogCharts')
+    div.modal-dialog
+        div.modal-content
+            div.modal-header
+                button.close(type='button', data-dismiss='modal', aria-label='Schliessen')
+                    span(aria-hidden='true') ×
+                h4.modal-title
+            div.modal-body
+
+            div.modal-footer
+                button.btn.btn-default(type='button', data-dismiss='modal') Schliessen
+                button.btn.btn-default.btn-confirm(type='button', data-confirm='0', data-dismiss='modal') Aktion abbrechen
+                button.btn.btn-default.btn-confirm(type='button', data-confirm='1', data-dismiss='modal') Aktion durchführen

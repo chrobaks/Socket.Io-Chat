@@ -1,0 +1,26 @@
+{
+  "name": "ScriptShareing",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/server",
+    "build": "node ./browserify"
+  },
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "body-parser": "^1.13.3",
+    "bootstrap": "^3.3.5",
+    "cookie-parser": "~1.3.5",
+    "debug": "~2.2.0",
+    "es5-shim": "^4.3.1",
+    "express": "~4.13.1",
+    "glob": "^6.0.1",
+    "jade": "~1.11.0",
+    "morgan": "~1.6.1",
+    "pg": "^4.4.3",
+    "serve-favicon": "~2.3.0",
+    "socket.io": "^1.4.3",
+    "uglify-js": "^2.6.0",
+    "watchify": "^3.6.0"
+  }
+}
