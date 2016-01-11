@@ -3,6 +3,7 @@
 First steps with node.js, socket.io and express, the application
 show a simple chat.
 
+
 Require node.js ver. 5 and npm, do following steps to install:
 
 1.) Download this repo in your project-folder
@@ -27,4 +28,5 @@ or public/css
 - default.css
 
 than do this command again
+
 -> npm run build
