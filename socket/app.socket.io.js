@@ -1,4 +1,25 @@
 var console = require('console');
+var find = require('array.prototype.find');
+var filter = require('array-filter');
+
+var usernamelist = [];
+var userIsSet = false;
+var defaultChatroom = 'defaultchatroom';
+
+function resetUsernamelist (username) {
+
+	usernamelist = usernamelist.filter( function (user){
+
+		return user !== username;
+	});
+}
+
+function setUsernameToList (socket, username) {
+
+	socket.username = username;
+	usernamelist.push(username);
+	userIsSet = true;
+}
 
 module.exports = function (server) {
 
@@ -6,9 +27,7 @@ module.exports = function (server) {
 
 	io.on('connection', function (socket) {
 
-		console.log('a user connected');
-
-		var userIsSet = false;
+		socket.join(defaultChatroom);
 
 		socket.on('add user', function (username) {
 
@@ -16,25 +35,38 @@ module.exports = function (server) {
 
 			if (username.length) {
 
-				socket.username = username;
-				userIsSet = true;
+				if ( ! usernamelist.find(function(user){return user === username})) {
 
-				socket.emit('login success');
-				io.emit('new user', {timestamp:new Date(), username:username});
+					setUsernameToList(socket, username);
+
+					socket.emit('login success', {timestamp:new Date(), username:username, usernamelist:usernamelist});
+					socket.broadcast.to(defaultChatroom).emit('new user', {timestamp:new Date(), username:username});
+
+				} else {
+
+					socket.emit('login err#username');
+
+				}
 
 			} else {
-				socket.emit('login error');
-			}
 
+				socket.emit('login error');
+
+			}
 		});
 
 		socket.on('chat message', function (data) {
+
 			data.timestamp = new Date();
 			io.emit('chat message', data);
+
 		});
 
 		socket.on('disconnect', function () {
-			console.log('user disconnected');
+
+			resetUsernamelist(socket.username);
+			io.emit('user disconnect', {timestamp:new Date(), username:socket.username, usernamelist:usernamelist});
+
 		});
 	});
 

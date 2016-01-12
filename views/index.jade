@@ -4,7 +4,6 @@ block content
     .container-fluid
         .jumbotron
             h1= title
-            p.subtitle= text
 
         .jumbotron(id='chatWrapper')
             .panel.panel-default
@@ -15,9 +14,15 @@ block content
                     div.chatLvl0
                         input(id='chatUser', type='text', value='', placeholder='Please choose a Username..')
                         button(id='btnLogin', type='text') Login
-                    ul.chatLvl1(id='chatList')
+                    .row
+                        .col-md-8
+                            ul.chatLvl1(id='chatList')
+
+                        .col-md-4
+                            ul.chatLvl1(id='chatUserlist')
 
                 .panel-footer
                     form.chatLvl1(id='chatForm', name='chatForm')
                         input(id='chatInput', type='text', value='', placeholder='Type your message here..')
                         button(type='submit') Send
+                        button.pull-right(type='button', id='btnExitChatroom') exit Chatroom

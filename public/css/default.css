@@ -2,12 +2,13 @@ body {background: #099999; font-family: Verdana, "serif";color:#099999;padding-t
 .jumbotron {padding:30px !important;}
 h1 {font-size: 20px !important;}
 p.subtitle, a {padding-top:30px;font-size: 12px;color:#099999;}
-
+ul {list-style: none;padding:0;margin:0;}
 #chatWrapper .chatLvl0 {display:block;}
 #chatWrapper .chatLvl1 {display:none;}
-form#chatForm input#chatInput {width:400px;}
-ul#chatList {height:400px;overflow:auto;list-style: none;padding:0px;margin:0px;}
-ul#chatList li {padding: 3px 10px;}
+input#chatInput, input#chatUser {width:400px;}
+ul#chatList, ul#chatUserlist {height:400px;overflow:auto;}
+ul#chatList, ul#chatUserlist li {padding: 3px 10px;}
 ul#chatList li.chatlist_msg:nth-child(odd) {background-color: #f5f5f5;}
-ul#chatList li.chatlist_user {background-color: lightblue;}
+ul#chatList li.chatlist_user, ul#chatList li.chatlist_disconnect {background-color: lightblue;}
 ul#chatList li span:first-child{padding-right: 10px;}
+ul#chatUserlist {background-color:#F5F5F5;border-left:1px solid lightblue;}
