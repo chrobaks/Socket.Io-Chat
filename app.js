@@ -12,10 +12,18 @@ app.set('view engine', 'jade');
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    console.log('error: ', typeof Error);
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+
+    try{
+
+        var err = new Error('Not Found');
+        err.status = 404;
+        next(err);
+
+    } catch (e) {
+
+        console.log('catch error: ', e);
+    }
+
 });
 
 // development error handler
