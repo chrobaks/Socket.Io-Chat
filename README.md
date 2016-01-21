@@ -64,7 +64,7 @@ or public/css
 - default.css
 
 
-Than do this command again
+Then do this command again
 -> npm run build
 
 
