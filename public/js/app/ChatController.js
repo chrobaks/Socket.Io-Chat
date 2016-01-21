@@ -3,7 +3,9 @@ function ChatController () {
 
 	var config = {
 		socket : null,
-		socketIsDisconnected : true
+		socketSessionId : '',
+		socketIsDisconnected : true,
+		socketPrivateChatActive : false
 	};
 
 	var Model = null;
@@ -26,11 +28,26 @@ function ChatController () {
 
 		});
 
+		config.dom.privateChatForm.on('submit', function () {
+
+			Model.sendPrivateMessage();
+
+			return false;
+
+		});
+
 		config.dom.btnExitChatroom.on('click', function () {
 
 			Model.socketDisconnect();
 
 		});
+
+		config.dom.chatUserlist.on('click', '.userlist', function () {
+
+			Model.initPrivateChat($(this).text(), $(this).attr('data-sessid'), 'event');
+
+		});
+
 	}
 
 	function socketListener () {
@@ -76,6 +93,7 @@ function ChatController () {
 		if (io) {
 
 			config.socket = io();
+			//config.socketIsDisconnected = false;
 
 			Model = new global.app.ChatModel(config);
 

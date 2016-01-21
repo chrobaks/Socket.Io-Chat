@@ -5,16 +5,26 @@ function ChatModel (config) {
 		username : ''
 	};
 
+	config.privateChat = {
+		sessionid : '',
+		message : '',
+		username : ''
+	}
+
 	config.dom = {
 		chatWrapper : $('#chatWrapper'),
 		usernameForm : $('#usernameForm'),
 		chatForm : $('#chatForm'),
+		privateChatForm : $('#privateChatForm'),
 		chatUsername : $('input#chatUsername'),
 		chatInput : $('input#chatInput'),
+		privateChatInput : $('input#privateChatInput'),
 		chatList : $('#chatList'),
 		chatUserlist : $('#chatUserlist'),
 		chatDialog : $('#chatDialog'),
-		btnExitChatroom : $('#btnExitChatroom')
+		privateChatModal : $('#privateChatModal'),
+		btnExitChatroom : $('#btnExitChatroom'),
+		itemUserlist : $('.userlist','#chatUserlist')
 	};
 
 	var _self = this;
@@ -35,10 +45,7 @@ function ChatModel (config) {
 				break;
 		}
 
-		var spantimestamp = $('<span>').text('[' + timestamp(data.timestamp) + ']');
-		var li = $('<li>',{"class":"chatlist_" + type}).append(spantimestamp, txt);
-
-		config.dom.chatList.append(li);
+		renderChatlist(type, txt, data.timestamp);
 
 	}
 
@@ -46,12 +53,9 @@ function ChatModel (config) {
 
 		if (typeof data === 'object') {
 
-			var li = null;
-
 			$.each(data, function (key,user) {
 
-				var li = $('<li>',{"class":"userlist", "data-sessid":user.sessionId}).text(user.username);
-				config.dom.chatUserlist.append(li);
+				renderUserlist(user);
 
 			});
 		}
@@ -65,24 +69,38 @@ function ChatModel (config) {
 		return (typeof config.socketData.message === 'string' && config.socketData.message.length) ? true : false;
 	}
 
+	function checkPrivateChat () {
+
+		var res = true;
+
+		$.each(config.privateChat, function (key, value) {
+			if ( typeof value !== 'string' || typeof value === 'string' && ! value.length) {
+				res = false;
+				return res;
+			}
+		});
+
+		return res;
+	}
+
 	function getStrFormated (str, strlen) {
 
 		str = $.trim(str);
 
-		if (str.length > 0 ) {
-
-			if (str.length > strlen ) {
-				str = str.substr(0,strlen-1);
-			}
-		}
-
-		return str;
+		return (str.length > strlen ) ? str.substr(0,strlen-1) : str;
 	}
 
 	function setMessage () {
 
 		config.socketData.message = getStrFormated(config.dom.chatInput.val(), 200);
 		config.dom.chatInput.val('');
+
+	}
+
+	function setPrivateMessage () {
+
+		config.privateChat.message = getStrFormated(config.dom.privateChatInput.val(), 200);
+		config.dom.privateChatInput.val('');
 
 	}
 
@@ -123,6 +141,31 @@ function ChatModel (config) {
 		$('.chatLvl1', config.dom.chatWrapper).css('display', showlvl1);
 	}
 
+	function renderChatlist (type, txt, time) {
+
+		var spantimestamp = $('<span>').text('[' + timestamp(time) + ']');
+		var li = $('<li>',{"class":"chatlist_" + type}).append(spantimestamp, txt);
+
+		config.dom.chatList.append(li);
+	}
+
+	function renderUserlist (user) {
+
+		var title = (user.sessionId !== config.socketSessionId) ? 'Open a private chat with this user.' : 'My username';
+		var css = (user.sessionId !== config.socketSessionId) ? 'userlist' : 'userlist_self';
+
+		var li = $('<li>',{"class":css, "data-sessid":user.sessionId, "title":title}).text(user.username);
+		config.dom.chatUserlist.append(li);
+
+	}
+
+	function renderPrivateChat (username) {
+
+		$('.modal-title', config.dom.privateChatModal).text('Private Chat mit ' + username);
+		config.dom.privateChatModal.modal('show');
+
+	}
+
 	function resetChat () {
 
 		config.dom.chatList.empty();
@@ -144,7 +187,9 @@ function ChatModel (config) {
 		if ( checkUsername() ) {
 
 			if (config.socketIsDisconnected === true) {
+
 				config.socket.connect();
+
 			}
 
 			config.socket.emit('add user', config.socketData.username);
@@ -161,7 +206,7 @@ function ChatModel (config) {
 			.empty()
 			.append($('<p>').text(text));
 
-		config.dom.chatDialog.modal.show();
+		config.dom.chatDialog.modal('show');
 
 	};
 
@@ -180,10 +225,43 @@ function ChatModel (config) {
 		}
 	};
 
+	this.sendPrivateMessage = function () {
+
+		setPrivateMessage();
+
+		if ( checkPrivateChat() && checkUsername() ) {
+
+			config.socket.emit('chat private message', config.privateChat);
+			config.socketPrivateChatActive = true;
+
+		} else {
+
+			alert('Keine Nachricht gefunden');
+
+		}
+	};
+
+	this.initPrivateChat = function (username, sessonid, listener) {
+
+		if ( listener === 'event') {
+
+			if (config.socketSessionId !== '' && config.socketSessionId !== sessonid) {
+
+				config.privateChat.sessionid = sessonid;
+				config.privateChat.username = username;
+				config.privateChat.message = '';
+
+				renderPrivateChat(username);
+
+			}
+		}
+	};
+
 	this.socketDisconnect = function () {
 
 		config.socket.disconnect();
 		config.socketIsDisconnected = true;
+		config.socketSessionId = '';
 
 		resetChat();
 		toggleChatLevel();
@@ -192,6 +270,7 @@ function ChatModel (config) {
 	this.setLoginAccessData = function (data) {
 
 		config.socketIsDisconnected = false;
+		config.socketSessionId = data.sessionId;
 
 		addToUserlist(data.users);
 		addToChatlist({timestamp:data.timestamp,username:data.username}, 'user');
@@ -199,7 +278,7 @@ function ChatModel (config) {
 
 	};
 
-	this.socketResponseSetMessage = function () {
+	this.socketResponseSetMessage = function (data) {
 
 		if ( ! config.socketIsDisconnected) {
 
