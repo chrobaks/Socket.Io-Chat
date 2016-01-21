@@ -12,7 +12,8 @@ var libBundle = [
     './public/js/bluebird/bluebird.js'
 ];
 var clientBundle = [
-    './public/js/app/SocketIoChat.js',
+    './public/js/app/ChatModel.js',
+    './public/js/app/ChatController.js',
     './public/js/app/index.js'
 ];
 // CSS

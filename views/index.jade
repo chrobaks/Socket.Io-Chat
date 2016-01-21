@@ -11,15 +11,25 @@ block content
                     .h3.panel-title NetCoApp Chat
 
                 .panel-body
-                    div.chatLvl0
-                        input(id='chatUser', type='text', value='', placeholder='Please choose a Username..')
-                        button(id='btnLogin', type='text') Login
-                    .row
+                    div.row.chatLvl0
+                        .col-md-1 &nbsp;
+                        .col-md-10
+                            p.subtitle
+                                | Bitte wähle einen Usernamen (keine Leerzeichen) und klicke dann auf Login.
+                        .col-md-1 &nbsp;
+                    div.row.chatLvl0
+                        .col-md-1 &nbsp;
+                        .col-md-10
+                            form(id='usernameForm', name='usernameForm')
+                                input(id='chatUsername', type='text', value='', placeholder='Please choose a Username..')
+                                button(id='btnLogin', type='submit') Login
+                        .col-md-1 &nbsp;
+                    div.row.chatLvl1
                         .col-md-8
-                            ul.chatLvl1(id='chatList')
+                            ul(id='chatList')
 
                         .col-md-4
-                            ul.chatLvl1(id='chatUserlist')
+                            ul(id='chatUserlist')
 
                 .panel-footer
                     form.chatLvl1(id='chatForm', name='chatForm')

@@ -1,4 +1,4 @@
 
 $(document).ready (function () {
-	global.app.SocketIoChat.init();
+	global.app.ChatController.init();
 });

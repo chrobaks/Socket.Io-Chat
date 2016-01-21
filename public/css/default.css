@@ -5,10 +5,11 @@ p.subtitle, a {padding-top:30px;font-size: 12px;color:#099999;}
 ul {list-style: none;padding:0;margin:0;}
 #chatWrapper .chatLvl0 {display:block;}
 #chatWrapper .chatLvl1 {display:none;}
-input#chatInput, input#chatUser {width:400px;}
+input#chatInput, input#chatUsername {width:400px;}
 ul#chatList, ul#chatUserlist {height:400px;overflow:auto;}
 ul#chatList, ul#chatUserlist li {padding: 3px 10px;}
 ul#chatList li.chatlist_msg:nth-child(odd) {background-color: #f5f5f5;}
 ul#chatList li.chatlist_user, ul#chatList li.chatlist_disconnect {background-color: lightblue;}
 ul#chatList li span:first-child{padding-right: 10px;}
 ul#chatUserlist {background-color:#F5F5F5;border-left:1px solid lightblue;}
+ul#chatUserlist li {border-bottom: 1px solid lightblue;}

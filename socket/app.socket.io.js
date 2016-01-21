@@ -2,23 +2,27 @@ var console = require('console');
 var find = require('array.prototype.find');
 var filter = require('array-filter');
 
-var usernamelist = [];
-var userIsSet = false;
-var defaultChatroom = 'defaultchatroom';
+var socketConfig = {
+	users : {},
+	rooms : {
+		'default' : 'defaultchatroom'
+	}
+};
 
-function resetUsernamelist (username) {
-
-	usernamelist = usernamelist.filter( function (user){
-
-		return user !== username;
-	});
+function deleteUser (username) {
+	if ( socketConfig.users.hasOwnProperty(username) ) {
+		delete socketConfig.users[username];
+	}
 }
 
-function setUsernameToList (socket, username) {
+function setUser (socket, username) {
 
 	socket.username = username;
-	usernamelist.push(username);
-	userIsSet = true;
+
+	socketConfig.users[username] = {
+		sessionId : socket.id,
+		username : username
+	};
 }
 
 module.exports = function (server) {
@@ -27,7 +31,7 @@ module.exports = function (server) {
 
 	io.on('connection', function (socket) {
 
-		socket.join(defaultChatroom);
+		socket.join(socketConfig.rooms.default);
 
 		socket.on('add user', function (username) {
 
@@ -35,12 +39,12 @@ module.exports = function (server) {
 
 			if (username.length) {
 
-				if ( ! usernamelist.find(function(user){return user === username})) {
+				if ( ! socketConfig.users.hasOwnProperty(username)) {
 
-					setUsernameToList(socket, username);
+					setUser(socket, username);
 
-					socket.emit('login success', {timestamp:new Date(), username:username, usernamelist:usernamelist});
-					socket.broadcast.to(defaultChatroom).emit('new user', {timestamp:new Date(), username:username});
+					socket.emit('login success', {timestamp:new Date(), username:username, sessionId:socket.id, users:socketConfig.users});
+					socket.broadcast.to(socketConfig.rooms.default).emit('new user', {timestamp:new Date(), username:username, sessionId:socket.id});
 
 				} else {
 
@@ -64,9 +68,12 @@ module.exports = function (server) {
 
 		socket.on('disconnect', function () {
 
-			resetUsernamelist(socket.username);
-			io.emit('user disconnect', {timestamp:new Date(), username:socket.username, usernamelist:usernamelist});
+			if ( typeof socket.username !== 'undefined') {
 
+				deleteUser(socket.username);
+				io.emit('user disconnect', {timestamp:new Date(), username:socket.username, users:socketConfig.users});
+
+			}
 		});
 	});
 

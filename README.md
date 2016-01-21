@@ -16,17 +16,27 @@ Require node.js ver. 5 and npm, do following steps to install:
 5.) run -> node ./bin/server.js
 
 
-start a browser and typ address
+# start a browser and typ address
 
 http://localhost:3000
 
 
-if you change somethink in public/js/app 
+# if you change somethink
+
+
+in public/js/app
+
 - index.js
-- SocketIoChat.js
+
+- ChatController.js
+
+- ChatModel.js
+
 
 or public/css
+
 - default.css
+
 
 than do this command again
 -> npm run build
