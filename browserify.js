@@ -12,7 +12,10 @@ var libBundle = [
     './public/js/bluebird/bluebird.js'
 ];
 var clientBundle = [
+    './public/js/app/ChatRenderer.js',
     './public/js/app/ChatModel.js',
+    './public/js/app/ChatSocketListener.js',
+    './public/js/app/ChatEventListener.js',
     './public/js/app/ChatController.js',
     './public/js/app/index.js'
 ];

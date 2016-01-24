@@ -8,7 +8,9 @@ div.modal.fade(tabindex='-1', role='dialog', id='chatDialog')
             div.modal-body
 
             div.modal-footer
-                button.btn.btn-default(type='button', data-dismiss='modal') Schliessen
+                button.btn.btn-success.pull-left(type='button') Akzeptieren
+                button.btn.btn-primary.pull-right(type='button', data-dismiss='modal') Schliessen
+
 
 div.modal.fade(tabindex='-1', role='dialog', id='privateChatModal')
     div.modal-dialog
@@ -25,4 +27,4 @@ div.modal.fade(tabindex='-1', role='dialog', id='privateChatModal')
                 form(id='privateChatForm', name='privateChatForm')
                     input(id='privateChatInput', type='text', value='', placeholder='Type your message here..')
                     button.btn.btn-default(type='submit') Send
-                    button.btn.btn-default(type='button', data-dismiss='modal') Schliessen
+                    button.btn.btn-primary(type='button', data-dismiss='modal') Schliessen

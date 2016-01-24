@@ -17,3 +17,4 @@ ul#chatUserlist  .userlist_self {font-weight:bold;}
 #privateChatModal .modal-footer , #privateChatModal  .modal-header {background-color:#099999;color:#fff;}
 #privateChatModal .modal-footer {text-align: left !important;}
 #privateChatModal .modal-footer input[type=text] {width:250px;color:#099999;margin-right:10px;}
+button.btn.btn-success {display:none;}
