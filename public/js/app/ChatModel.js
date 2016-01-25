@@ -15,8 +15,8 @@ function ChatModel (config) {
 		callerSocketId : '',
 		callerUsername : '',
 		responseSocketId : '',
+		responseUsername : '',
 		message : '',
-		username : '',
 		timestamp : ''
 	};
 
@@ -152,6 +152,10 @@ function ChatModel (config) {
 
 	};
 
+	this.checkPrivateChatStatus = function (status) {
+		return ( config.socketPrivateChatActive && config.socketPrivateChatStatus === status ) ? true : false;
+	};
+
 	this.sendMessage = function () {
 
 		setMessage();
@@ -200,7 +204,7 @@ function ChatModel (config) {
 				config.privateChat.callerSocketId = config.socketSessionId;
 				config.privateChat.callerUsername = config.socketData.username;
 				config.privateChat.responseSocketId = sessonid;
-				config.privateChat.username = username;
+				config.privateChat.responseUsername = username;
 				config.privateChat.message = '';
 				config.privateChat.timestamp = '';
 				config.socketPrivateChatActive = true;
@@ -242,7 +246,7 @@ function ChatModel (config) {
 
 		config.privateChat.callerSocketId = '';
 		config.privateChat.responseSocketId = '';
-		config.privateChat.username = '';
+		config.privateChat.responseUsername = '';
 		config.privateChat.message = '';
 		config.privateChat.timestamp = '';
 		config.socketPrivateChatActive = false;
@@ -327,7 +331,7 @@ function ChatModel (config) {
 		config.privateChat.callerSocketId = config.socketSessionId;
 		config.privateChat.callerUsername = config.socketData.username;
 		config.privateChat.responseSocketId = data.callerSocketId;
-		config.privateChat.username = data.username;
+		config.privateChat.responseUsername = data.username;
 		config.privateChat.message = '';
 		config.privateChat.timestamp = '';
 		config.socketPrivateChatActive = true;
@@ -361,7 +365,7 @@ function ChatModel (config) {
 			config.socket.emit('user private chat open', {
 				callerSocketId : config.privateChat.callerSocketId,
 				responseSocketId : config.privateChat.responseSocketId,
-				callerUsername : config.socketData.username
+				callerUsername : config.privateChat.callerUsername
 			});
 
 		}
@@ -369,7 +373,7 @@ function ChatModel (config) {
 
 	this.socketResponseOpenPrivateChat = function (data) {
 
-		config.privateChat.message = config.privateChat.username + ' hat den Raum betreten';
+		config.privateChat.message = config.privateChat.responseUsername + ' hat den Raum betreten';
 		config.privateChat.timestamp = data.timestamp;
 
 		setPrivateChatStatus(2);
@@ -381,7 +385,7 @@ function ChatModel (config) {
 		config.socket.emit('user private chat message', {
 			callerSocketId : config.privateChat.callerSocketId,
 			responseSocketId : config.privateChat.responseSocketId,
-			callerUsername : config.socketData.username
+			callerUsername : config.privateChat.callerUsername
 		});
 
 	};
@@ -398,7 +402,7 @@ function ChatModel (config) {
 			if (config.socketPrivateChatStatus === 'accept' || config.socketPrivateChatStatus === 'reqdecision') {
 
 				type = 'status';
-				config.privateChat.message = config.privateChat.username + ' hat den Raum betreten';
+				config.privateChat.message = config.privateChat.responseUsername + ' hat den Raum betreten';
 
 				ChatRenderer.renderDialog(null);
 				ChatRenderer.renderPrivateChat();
@@ -417,7 +421,7 @@ function ChatModel (config) {
 
 			if (config.socketPrivateChatStatus === 'open') {
 
-				config.privateChat.message = config.privateChat.username + ' hat den Raum verlassen';
+				config.privateChat.message = config.privateChat.responseUsername + ' hat den Raum verlassen';
 				config.privateChat.timestamp = data.timestamp;
 
 				ChatRenderer.renderPrivateChatMessage('status');

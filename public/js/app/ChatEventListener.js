@@ -1,7 +1,7 @@
 
-function ChatEventListener (Model, config) {
+function ChatEventListener (Model, dom) {
 
-	config.dom.usernameForm.on('submit', function () {
+	dom.usernameForm.on('submit', function () {
 
 		Model.addUser();
 
@@ -9,7 +9,7 @@ function ChatEventListener (Model, config) {
 
 	});
 
-	config.dom.chatForm.on('submit', function () {
+	dom.chatForm.on('submit', function () {
 
 		Model.sendMessage();
 
@@ -17,7 +17,7 @@ function ChatEventListener (Model, config) {
 
 	});
 
-	config.dom.privateChatForm.on('submit', function () {
+	dom.privateChatForm.on('submit', function () {
 
 		Model.sendPrivateMessage();
 
@@ -25,38 +25,38 @@ function ChatEventListener (Model, config) {
 
 	});
 
-	config.dom.btnExitChatroom.on('click', function () {
+	dom.btnExitChatroom.on('click', function () {
 
 		Model.socketDisconnect();
 
 	});
 
-	$(config.dom.btnConfirm , config.dom.chatDialog).on('mouseup', function () {
+	$(dom.btnConfirm , dom.chatDialog).on('mouseup', function () {
 
 		Model.acceptPrivateChatRequest();
 
 	});
 
-	config.dom.chatUserlist.on('click', '.userlist', function () {
-		console.log('chatUserlist');
+	dom.chatUserlist.on('click', '.userlist', function () {
+
 		Model.setPrivateChatRequest($(this).text(), $(this).attr('data-sessid'));
 
 	});
 
-	config.dom.chatDialog.on('hidden.bs.modal', function () {
+	dom.chatDialog.on('hidden.bs.modal', function () {
 
-		if ( config.socketPrivateChatActive && config.socketPrivateChatStatus === 'waiting' ) {
+		if ( Model.checkPrivateChatStatus('waiting') ) {
 
 			Model.deletePrivateChatRequest();
 
-		} else if ( config.socketPrivateChatActive && config.socketPrivateChatStatus === 'reqdecision' ) {
+		} else if ( Model.checkPrivateChatStatus('reqdecision') ) {
 
 			Model.refusePrivateChatRequest();
 
 		}
 	});
 
-	config.dom.privateChatModal.on('hidden.bs.modal', function () {
+	dom.privateChatModal.on('hidden.bs.modal', function () {
 
 		Model.disconnectPrivateChat();
 

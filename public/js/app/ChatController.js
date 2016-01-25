@@ -2,7 +2,8 @@
 function ChatController () {
 
 	var config = {
-		socket : null
+		socket : null,
+		dom : null
 	};
 
 	var Model = null;
@@ -16,8 +17,8 @@ function ChatController () {
 			config.socket = io();
 
 			Model = new global.app.ChatModel(config);
-			ChatSocketListener = new global.app.ChatSocketListener(Model, config);
-			ChatEventListener = new global.app.ChatEventListener(Model, config);
+			ChatSocketListener = new global.app.ChatSocketListener(Model, config.socket);
+			ChatEventListener = new global.app.ChatEventListener(Model, config.dom);
 
 		}
 	};

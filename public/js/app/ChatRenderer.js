@@ -56,7 +56,7 @@ function ChatRenderer (config) {
 
 	this.renderPrivateChat = function () {
 
-		$('.modal-title', config.dom.privateChatModal).text('Private Chat mit ' + config.privateChat.username);
+		$('.modal-title', config.dom.privateChatModal).text('Private Chat mit ' + config.privateChat.responseUsername);
 
 		config.dom.privateChatModal.modal('show');
 
