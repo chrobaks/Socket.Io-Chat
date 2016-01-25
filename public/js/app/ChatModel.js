@@ -20,24 +20,6 @@ function ChatModel (config) {
 		timestamp : ''
 	};
 
-	config.dom = {
-		chatWrapper : $('#chatWrapper'),
-		usernameForm : $('#usernameForm'),
-		chatForm : $('#chatForm'),
-		privateChatForm : $('#privateChatForm'),
-		chatUsername : $('input#chatUsername'),
-		chatInput : $('input#chatInput'),
-		privateChatInput : $('input#privateChatInput'),
-		privateChatList : $('ul#privateChatList'),
-		chatList : $('#chatList'),
-		chatUserlist : $('#chatUserlist'),
-		chatDialog : $('#chatDialog'),
-		privateChatModal : $('#privateChatModal'),
-		btnExitChatroom : $('#btnExitChatroom'),
-		btnConfirm : $('.btn.btn-success'),
-		itemUserlist : $('.userlist','#chatUserlist')
-	};
-
 	var ChatRenderer = new global.app.ChatRenderer(config);
 	var privateStatusFilter = ['closed','waiting','open','reqdecision','accept'];
 	var _self = this;
@@ -109,21 +91,21 @@ function ChatModel (config) {
 	function setMessage () {
 
 		config.socketData.message = getStrFormated(config.dom.chatInput.val(), 200);
-		config.dom.chatInput.val('');
+		ChatRenderer.emptyChatInput();
 
 	}
 
 	function setPrivateMessage () {
 
 		config.privateChat.message = getStrFormated(config.dom.privateChatInput.val(), 200);
-		config.dom.privateChatInput.val('');
+		ChatRenderer.emptyPrivateChatInput();
 
 	}
 
 	function setUsername () {
 
 		config.socketData.username = getStrFormated(config.dom.chatUsername.val(), 30);
-		config.dom.chatUsername.val('');
+		ChatRenderer.emptyChatUsername();
 
 	}
 
@@ -135,31 +117,16 @@ function ChatModel (config) {
 		}
 	}
 
-	function toggleChatLevel () {
-
-		var showlvl0 = 'block';
-		var showlvl1 = 'none';
-
-		if( $('.chatLvl0', config.dom.chatWrapper).css('display') !== 'none') {
-
-			showlvl0 = 'none';
-			showlvl1 = 'block';
-		}
-
-		$('.chatLvl0', config.dom.chatWrapper).css('display', showlvl0);
-		$('.chatLvl1', config.dom.chatWrapper).css('display', showlvl1);
-	}
-
 	function resetChat () {
 
-		config.dom.chatList.empty();
-		config.dom.chatUserlist.empty();
+		ChatRenderer.emptyChatList();
+		ChatRenderer.emptyUserList();
 		config.socketData.username = '';
 	}
 
 	function resetUserlist (userlist) {
 
-		config.dom.chatUserlist.empty();
+		ChatRenderer.emptyUserList();
 		addToUserlist(userlist);
 
 	}
@@ -168,70 +135,20 @@ function ChatModel (config) {
 
 		setUsername();
 
-		if ( checkUsername() ) {
+		if ( ! checkUsername() ) {
 
-			if (config.socketIsDisconnected === true) {
+			ChatRenderer.renderDialog({text:'Keinen korrekten Usernamen gefunden'});
+			return false;
 
-				config.socket.connect();
-
-			}
-
-			config.socket.emit('add user', config.socketData.username);
-
-		} else {
-
-			_self.dialog('Keinen Usernamen gefunden');
-		}
-	};
-
-	this.dialog = function (arg) {
-
-		var text = '';
-		var btntitle = 'schliessen';
-
-		$(config.dom.btnConfirm , config.dom.chatDialog).hide();
-
-		if (typeof arg === 'string' ) {
-
-			text = $('<p>').text(arg);
-
-		} else if (typeof arg === 'object') {
-
-			if (typeof arg === 'string') {
-
-				text = arg.text;
-
-			} else {
-
-				text = '<p>' + arg.text.join('</p><p>') + '</p>';
-
-			}
-
-			if (arg.hasOwnProperty('confirm')) {
-
-				$(config.dom.btnConfirm , config.dom.chatDialog).css('display','block');
-
-			}
-
-			if(arg.hasOwnProperty('title')) {
-
-				$('.modal-title', config.dom.chatDialog)
-					.text(arg.title);
-			}
-
-			if(arg.hasOwnProperty('btntitle')) {
-
-				btntitle = arg.btntitle;
-			}
 		}
 
-		$('.modal-body', config.dom.chatDialog)
-			.html(text);
+		if (config.socketIsDisconnected === true) {
 
-		$('.modal-footer button.btn.btn-primary', config.dom.chatDialog)
-			.text(btntitle);
+			config.socket.connect();
 
-		config.dom.chatDialog.modal('show');
+		}
+
+		config.socket.emit('add user', config.socketData.username);
 
 	};
 
@@ -245,7 +162,7 @@ function ChatModel (config) {
 
 		} else {
 
-			_self.dialog('Keine Nachricht gefunden');
+			ChatRenderer.renderDialog({text:'Keine Nachricht gefunden'});
 
 		}
 	};
@@ -289,7 +206,12 @@ function ChatModel (config) {
 				config.socketPrivateChatActive = true;
 
 				setPrivateChatStatus(1);
-				_self.dialog({title:'Private Chat Anfrage', text:txt, btntitle:'Abrechen'});
+
+				ChatRenderer.renderDialog({
+					title:'Private Chat Anfrage',
+					text:txt,
+					btntitle:'Abrechen'
+				});
 
 				config.socket.emit('user private chat request', config.privateChat);
 
@@ -345,17 +267,24 @@ function ChatModel (config) {
 		config.socketSessionId = '';
 
 		resetChat();
-		toggleChatLevel();
+		ChatRenderer.toggleChatLevel();
+
 	};
 
-	this.setLoginAccessData = function (data) {
+	this.setLoginSuccess = function (data) {
 
 		config.socketIsDisconnected = false;
 		config.socketSessionId = data.sessionId;
 
 		addToUserlist(data.users);
 		addToChatlist({timestamp:data.timestamp,username:data.username}, 'user');
-		toggleChatLevel();
+		ChatRenderer.toggleChatLevel();
+
+	};
+
+	this.setLoginError = function (error) {
+
+		ChatRenderer.renderDialog({text:error});
 
 	};
 
@@ -405,7 +334,7 @@ function ChatModel (config) {
 
 		setPrivateChatStatus(3);
 
-		_self.dialog({
+		ChatRenderer.renderDialog({
 			title:'Einladung zum privaten Chat',
 			text:txt, btntitle:'Ablehnen',
 			confirm:'accept'
@@ -416,8 +345,8 @@ function ChatModel (config) {
 
 		if (config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId) {
 
-			$('.modal-body', config.dom.chatDialog)
-				.html('Der User hat die Einladung abgelehnt,');
+			ChatRenderer.renderDialogBody('Der User hat die Einladung abgelehnt,');
+
 		}
 	};
 
@@ -425,8 +354,7 @@ function ChatModel (config) {
 
 		if (config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId) {
 
-			$('.modal-body', config.dom.chatDialog)
-				.html('Der User hat die Einladung angenommen, bitte warten, NICHT diesen Dialog schliessen!');
+			ChatRenderer.renderDialogBody('Der User hat die Einladung angenommen, bitte warten, NICHT diesen Dialog schliessen!');
 
 			setPrivateChatStatus(4);
 
@@ -446,8 +374,7 @@ function ChatModel (config) {
 
 		setPrivateChatStatus(2);
 
-		config.dom.chatDialog.modal('hide');
-
+		ChatRenderer.renderDialog(null);
 		ChatRenderer.renderPrivateChat();
 		ChatRenderer.renderPrivateChatMessage('status');
 
@@ -473,8 +400,7 @@ function ChatModel (config) {
 				type = 'status';
 				config.privateChat.message = config.privateChat.username + ' hat den Raum betreten';
 
-				config.dom.chatDialog.modal('hide');
-
+				ChatRenderer.renderDialog(null);
 				ChatRenderer.renderPrivateChat();
 
 			}

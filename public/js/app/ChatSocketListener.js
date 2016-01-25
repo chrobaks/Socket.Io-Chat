@@ -4,19 +4,19 @@ function ChatSocketListener (Model, config) {
 
 	config.socket.on('login success', function (data) {
 
-		Model.setLoginAccessData(data);
+		Model.setLoginSuccess(data);
 
 	});
 
 	config.socket.on('login error', function () {
 
-		Model.dialog('Der Benutzername ist ungültig');
+		Model.setLoginError('Der Benutzername ist ungültig');
 
 	});
 
 	config.socket.on('login err#username', function () {
 
-		Model.dialog('Der Benutzername wird schon benützt, bitte wähle einen anderen Namen.');
+		Model.setLoginError('Der Benutzername wird schon benützt, bitte wähle einen anderen Namen.');
 
 	});
 

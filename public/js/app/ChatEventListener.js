@@ -38,7 +38,7 @@ function ChatEventListener (Model, config) {
 	});
 
 	config.dom.chatUserlist.on('click', '.userlist', function () {
-
+		console.log('chatUserlist');
 		Model.setPrivateChatRequest($(this).text(), $(this).attr('data-sessid'));
 
 	});
