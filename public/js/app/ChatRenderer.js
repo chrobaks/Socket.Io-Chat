@@ -64,7 +64,7 @@ function ChatRenderer (config) {
 
 	this.renderPrivateChatMessage = function (type) {
 
-		var text = (type==='msg') ? ' ' + config.privateChat.username + ' ' + config.privateChat.message : ' ' + config.privateChat.message;
+		var text = (type==='msg') ? ' ' + config.privateChat.responseUsername + ' ' + config.privateChat.message : ' ' + config.privateChat.message;
 		var spantimestamp = $('<span>').text('[' + timestamp(config.privateChat.timestamp) + ']');
 		var li = $('<li>',{"class":"chatlist_user"}).append(spantimestamp, text);
 

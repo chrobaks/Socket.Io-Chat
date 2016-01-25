@@ -70,11 +70,7 @@ http://localhost:3000
 
 In public/js/app
 
-- index.js
-
-- ChatController.js
-
-- ChatModel.js
+- *.js
 
 
 or public/css

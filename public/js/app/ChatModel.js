@@ -5,7 +5,6 @@ function ChatModel (config) {
 	config.socketPrivateChatActive = false,
 	config.socketPrivateChatStatus = 'closed';
 
-
 	config.socketData = {
 		message : '',
 		username : ''
@@ -21,6 +20,7 @@ function ChatModel (config) {
 	};
 
 	var ChatRenderer = new global.app.ChatRenderer(config);
+
 	var privateStatusFilter = ['closed','waiting','open','reqdecision','accept'];
 	var _self = this;
 
@@ -56,15 +56,19 @@ function ChatModel (config) {
 		}
 	}
 
-	function checkUsername () {
-		return (typeof config.socketData.username === 'string' && config.socketData.username.length) ? true : false;
+	function filterUsername () {
+		return !!(typeof config.socketData.username === 'string' && config.socketData.username.length);
 	}
 
-	function checkMessage () {
-		return (typeof config.socketData.message === 'string' && config.socketData.message.length) ? true : false;
+	function filterMessage () {
+		return !!(typeof config.socketData.message === 'string' && config.socketData.message.length);
 	}
 
-	function checkPrivateChat () {
+	function filterPrivateResponseStatus (data) {
+		return !!(config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId);
+	}
+
+	function filterPrivateChat () {
 
 		var res = true;
 
@@ -109,6 +113,32 @@ function ChatModel (config) {
 
 	}
 
+	function setPrivateChatObject (respSessid, respUsername) {
+
+		if (respSessid !== null && respUsername !== null ){
+
+			config.privateChat = {
+				callerSocketId : config.socketSessionId,
+				callerUsername : config.socketData.username,
+				responseSocketId : respSessid,
+				responseUsername : respUsername,
+				message : '',
+				timestamp : ''
+			};
+
+		} else {
+
+			config.privateChat = {
+				callerSocketId : '',
+				callerUsername : '',
+				responseSocketId : '',
+				responseUsername : '',
+				message : '',
+				timestamp : ''
+			};
+		}
+	}
+
 	function setPrivateChatStatus (statusindex) {
 
 		if (statusindex+1 <= privateStatusFilter.length) {
@@ -117,11 +147,21 @@ function ChatModel (config) {
 		}
 	}
 
+	function setPrivateChatClientMessage () {
+
+		config.privateChat.timestamp = new Date();
+		config.privateChat.message = config.privateChat.callerUsername + ' ' + config.privateChat.message;
+
+		ChatRenderer.renderPrivateChatMessage('status');
+
+	}
+
 	function resetChat () {
 
 		ChatRenderer.emptyChatList();
 		ChatRenderer.emptyUserList();
 		config.socketData.username = '';
+
 	}
 
 	function resetUserlist (userlist) {
@@ -135,7 +175,7 @@ function ChatModel (config) {
 
 		setUsername();
 
-		if ( ! checkUsername() ) {
+		if ( ! filterUsername() ) {
 
 			ChatRenderer.renderDialog({text:'Keinen korrekten Usernamen gefunden'});
 			return false;
@@ -153,14 +193,14 @@ function ChatModel (config) {
 	};
 
 	this.checkPrivateChatStatus = function (status) {
-		return ( config.socketPrivateChatActive && config.socketPrivateChatStatus === status ) ? true : false;
+		return !!( config.socketPrivateChatActive && config.socketPrivateChatStatus === status );
 	};
 
 	this.sendMessage = function () {
 
 		setMessage();
 
-		if ( checkMessage() && checkUsername() ) {
+		if ( filterMessage() && filterUsername() ) {
 
 			config.socket.emit('chat message', config.socketData);
 
@@ -177,14 +217,10 @@ function ChatModel (config) {
 
 			setPrivateMessage();
 
-			if (checkPrivateChat() && checkUsername()) {
+			if (filterPrivateChat() && filterUsername()) {
 
 				config.socket.emit('user private chat message', config.privateChat);
-
-				config.privateChat.timestamp = new Date();
-				config.privateChat.message = config.privateChat.callerUsername + ' ' + config.privateChat.message;
-
-				ChatRenderer.renderPrivateChatMessage('status');
+				setPrivateChatClientMessage();
 
 			}
 		}
@@ -201,14 +237,9 @@ function ChatModel (config) {
 					'Wenn du diesen Dialog schließt, dann wird die Einladung zurück gezogen!'
 				];
 
-				config.privateChat.callerSocketId = config.socketSessionId;
-				config.privateChat.callerUsername = config.socketData.username;
-				config.privateChat.responseSocketId = sessonid;
-				config.privateChat.responseUsername = username;
-				config.privateChat.message = '';
-				config.privateChat.timestamp = '';
 				config.socketPrivateChatActive = true;
 
+				setPrivateChatObject(sessonid, username);
 				setPrivateChatStatus(1);
 
 				ChatRenderer.renderDialog({
@@ -244,14 +275,11 @@ function ChatModel (config) {
 
 	this.deletePrivateChatRequest = function () {
 
-		config.privateChat.callerSocketId = '';
-		config.privateChat.responseSocketId = '';
-		config.privateChat.responseUsername = '';
-		config.privateChat.message = '';
-		config.privateChat.timestamp = '';
 		config.socketPrivateChatActive = false;
 
+		setPrivateChatObject(null, null);
 		setPrivateChatStatus(0);
+
 	};
 
 	this.disconnectPrivateChat = function () {
@@ -275,7 +303,7 @@ function ChatModel (config) {
 
 	};
 
-	this.setLoginSuccess = function (data) {
+	this.socketResponseLoginSuccess = function (data) {
 
 		config.socketIsDisconnected = false;
 		config.socketSessionId = data.sessionId;
@@ -286,7 +314,7 @@ function ChatModel (config) {
 
 	};
 
-	this.setLoginError = function (error) {
+	this.socketResponseLoginError = function (error) {
 
 		ChatRenderer.renderDialog({text:error});
 
@@ -328,14 +356,9 @@ function ChatModel (config) {
 			'Wenn du diesen Dialog schließt, dann wird die Einladung abgelehnt!'
 		];
 
-		config.privateChat.callerSocketId = config.socketSessionId;
-		config.privateChat.callerUsername = config.socketData.username;
-		config.privateChat.responseSocketId = data.callerSocketId;
-		config.privateChat.responseUsername = data.username;
-		config.privateChat.message = '';
-		config.privateChat.timestamp = '';
 		config.socketPrivateChatActive = true;
 
+		setPrivateChatObject(data.callerSocketId, data.username);
 		setPrivateChatStatus(3);
 
 		ChatRenderer.renderDialog({
@@ -347,7 +370,7 @@ function ChatModel (config) {
 
 	this.socketResponseRefuseUserInvite = function(data) {
 
-		if (config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId) {
+		if ( filterPrivateResponseStatus(data) ) {
 
 			ChatRenderer.renderDialogBody('Der User hat die Einladung abgelehnt,');
 
@@ -356,7 +379,7 @@ function ChatModel (config) {
 
 	this.socketResponseAcceptPrivateChat = function(data) {
 
-		if (config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId) {
+		if ( filterPrivateResponseStatus(data) ) {
 
 			ChatRenderer.renderDialogBody('Der User hat die Einladung angenommen, bitte warten, NICHT diesen Dialog schliessen!');
 
@@ -394,7 +417,7 @@ function ChatModel (config) {
 
 		var type = 'msg';
 
-		if (config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId) {
+		if ( filterPrivateResponseStatus(data) ) {
 
 			config.privateChat.message = data.message;
 			config.privateChat.timestamp = data.timestamp;
@@ -417,7 +440,7 @@ function ChatModel (config) {
 
 	this.socketResponseDisconnectPrivateChat = function (data) {
 
-		if (config.socketPrivateChatActive === true && config.privateChat.responseSocketId === data.callerSocketId) {
+		if ( filterPrivateResponseStatus(data) ) {
 
 			if (config.socketPrivateChatStatus === 'open') {
 
