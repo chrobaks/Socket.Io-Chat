@@ -45,11 +45,11 @@ function ChatEventListener (Model, dom) {
 
 	dom.chatDialog.on('hidden.bs.modal', function () {
 
-		if ( Model.checkPrivateChatStatus('waiting') ) {
+		if ( Model.filterPrivateChatStatus('waiting') ) {
 
-			Model.deletePrivateChatRequest();
+			Model.disconnectPrivateChat();
 
-		} else if ( Model.checkPrivateChatStatus('reqdecision') ) {
+		} else if ( Model.filterPrivateChatStatus('reqdecision') ) {
 
 			Model.refusePrivateChatRequest();
 

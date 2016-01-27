@@ -5,7 +5,7 @@ p.subtitle, a {padding-top:30px;font-size: 12px;color:#099999;}
 ul {list-style: none;padding:0;margin:0;}
 #chatWrapper .chatLvl0 {display:block;}
 #chatWrapper .chatLvl1 {display:none;}
-input#chatInput, input#chatUsername {width:400px;}
+input#chatInput, input#chatUsername {width:400px;margin-right:5px;}
 ul#chatList, ul#chatUserlist, ul#privateChatList {height:400px;overflow:auto;}
 ul#chatList, ul#chatUserlist li {padding: 3px 10px;}
 ul#chatList li.chatlist_msg:nth-child(odd) {background-color: #f5f5f5;}
@@ -16,5 +16,5 @@ ul#chatUserlist li.userlist, ul#chatUserlist  .userlist_self {border-bottom: 1px
 ul#chatUserlist  .userlist_self {font-weight:bold;}
 #privateChatModal .modal-footer , #privateChatModal  .modal-header {background-color:#099999;color:#fff;}
 #privateChatModal .modal-footer {text-align: left !important;}
-#privateChatModal .modal-footer input[type=text] {width:250px;color:#099999;margin-right:10px;}
-button.btn.btn-success {display:none;}
+#privateChatModal .modal-footer input[type=text] {width:250px;color:#099999;margin-right:10px;float:left;}
+#chatDialog button.btn.btn-success {display:none;}

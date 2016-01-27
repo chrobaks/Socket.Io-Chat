@@ -37,7 +37,7 @@ function ChatSocketListener (Model, socket) {
 
 	});
 
-	socket.on('user private message invite', function (data) {
+	socket.on('user private chat inviting', function (data) {
 
 		Model.socketResponseUserInvite(data);
 

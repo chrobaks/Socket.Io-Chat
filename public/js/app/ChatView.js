@@ -1,5 +1,5 @@
 
-function ChatRenderer (config) {
+function ChatView (config) {
 
 	config.dom = {
 		chatWrapper : $('#chatWrapper'),
@@ -13,35 +13,50 @@ function ChatRenderer (config) {
 		chatList : $('#chatList'),
 		chatUserlist : $('#chatUserlist'),
 		chatDialog : $('#chatDialog'),
+		chatLvl0 : $('.chatLvl0', '#chatWrapper'),
+		chatLvl1 : $('.chatLvl1', '#chatWrapper'),
 		privateChatModal : $('#privateChatModal'),
 		btnExitChatroom : $('#btnExitChatroom'),
-		btnConfirm : $('.btn.btn-success'),
+		btnConfirm : $('.btn.btn-success', '#chatDialog'),
 		itemUserlist : $('.userlist','#chatUserlist')
 	};
 
 	var _self = this;
 
-	function timestamp (sockettime) {
+	function timestamp (time) {
 
-		sockettime = $.trim(sockettime);
+		time = $.trim(time);
 
-		if( ! sockettime.length) {
+		if( ! time.length) {
 			return '';
 		}
 
-		var time = new Date(sockettime);
+		time = new Date(time);
+
 		var h = (time.getHours() < 10) ? '0' + time.getHours() : time.getHours();
 		var m = (time.getMinutes() < 10) ? '0' + time.getMinutes() : time.getMinutes();
 
 		return h +':'+m;
 	}
 
+	this.toggleChatLevel = function () {
+
+		var showlvl0 = (config.dom.chatLvl0.css('display') !== 'none') ? 'none' : 'block';
+		var showlvl1 = (showlvl0 === 'block' ) ? 'none' : 'block';
+
+		config.dom.chatLvl0.css('display', showlvl0);
+		config.dom.chatLvl1.css('display', showlvl1);
+
+	};
+
 	this.renderChatlist = function (type, txt, time) {
 
 		var spantimestamp = $('<span>').text('[' + timestamp(time) + ']');
-		var li = $('<li>',{"class":"chatlist_" + type}).append(spantimestamp, txt);
 
-		config.dom.chatList.append(li);
+		$('<li>',{"class":"chatlist_" + type})
+			.append(spantimestamp, txt)
+			.appendTo(config.dom.chatList);
+
 	};
 
 	this.renderUserlist = function (user) {
@@ -49,14 +64,16 @@ function ChatRenderer (config) {
 		var title = (user.sessionId !== config.socketSessionId) ? 'Open a private chat with this user.' : 'My username';
 		var css = (user.sessionId !== config.socketSessionId) ? 'userlist' : 'userlist_self';
 
-		var li = $('<li>',{"class":css, "data-sessid":user.sessionId, "title":title}).text(user.username);
-		config.dom.chatUserlist.append(li);
+		$('<li>',{"class":css, "data-sessid":user.sessionId, "title":title})
+			.text(user.username)
+			.appendTo(config.dom.chatUserlist);
 
 	};
 
 	this.renderPrivateChat = function () {
 
-		$('.modal-title', config.dom.privateChatModal).text('Private Chat mit ' + config.privateChat.responseUsername);
+		$('.modal-title', config.dom.privateChatModal)
+			.text('Private Chat mit ' + config.privateChat.responseUsername);
 
 		config.dom.privateChatModal.modal('show');
 
@@ -66,9 +83,10 @@ function ChatRenderer (config) {
 
 		var text = (type==='msg') ? ' ' + config.privateChat.responseUsername + ' ' + config.privateChat.message : ' ' + config.privateChat.message;
 		var spantimestamp = $('<span>').text('[' + timestamp(config.privateChat.timestamp) + ']');
-		var li = $('<li>',{"class":"chatlist_user"}).append(spantimestamp, text);
 
-		config.dom.privateChatList.append(li);
+		$('<li>',{"class":"chatlist_user"})
+			.append(spantimestamp, text)
+			.appendTo(config.dom.privateChatList);
 
 	};
 
@@ -84,14 +102,11 @@ function ChatRenderer (config) {
 		var btntitle = arg.btntitle || 'schliessen';
 
 		_self.renderDialogBody('<p>' + arg.text.join('</p><p>') + '</p>');
+		_self.dialogDisplayConfirm('none');
 
 		if (arg.hasOwnProperty('confirm')) {
 
-			$(config.dom.btnConfirm , config.dom.chatDialog).css('display','block');
-
-		} else {
-
-			$(config.dom.btnConfirm , config.dom.chatDialog).css('display','none');
+			_self.dialogDisplayConfirm('block');
 
 		}
 
@@ -111,21 +126,6 @@ function ChatRenderer (config) {
 	this.renderDialogBody = function (text) {
 		$('.modal-body', config.dom.chatDialog)
 			.html(text);
-	};
-
-	this.toggleChatLevel = function () {
-
-		var showlvl0 = 'block';
-		var showlvl1 = 'none';
-
-		if( $('.chatLvl0', config.dom.chatWrapper).css('display') !== 'none') {
-
-			showlvl0 = 'none';
-			showlvl1 = 'block';
-		}
-
-		$('.chatLvl0', config.dom.chatWrapper).css('display', showlvl0);
-		$('.chatLvl1', config.dom.chatWrapper).css('display', showlvl1);
 	};
 
 	this.emptyChatList = function () {
@@ -148,8 +148,16 @@ function ChatRenderer (config) {
 		config.dom.privateChatInput.val('');
 	};
 
+	this.dialogIsOpen = function() {
+		return (config.dom.chatDialog.css('display')!=='none');
+	};
+
+	this.dialogDisplayConfirm = function(val) {
+		config.dom.btnConfirm.css('display',val);
+	};
+
 	return this;
 }
 
 global.app = global.app || {};
-global.app.ChatRenderer = ChatRenderer;
+global.app.ChatView = ChatView;
